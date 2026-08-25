@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/weather_model.dart';
-import '../services/weather_service.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../providers/weather_provider.dart';
 import '../widgets/error_viewer.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/forecast_list.dart';
@@ -13,17 +15,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  final WeatherService _weatherService = WeatherService();
   final TextEditingController _cityController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  Timer? _debounce;
+  DateTime? _lastBackPress;
 
-  WeatherModel? _weather;
-  String _cityName = '';
-  bool _isLoading = false;
-  String? _errorMessage;
-  bool _isFromLocation = false;
-
-  // Controle da animação de loading
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -38,77 +34,50 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _pulseAnimation = Tween<double>(begin: 0.85, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    _cityController.addListener(_onSearchChanged);
   }
 
-  Future<void> _searchWeather() async {
-    final city = _cityController.text.trim();
-    if (city.isEmpty) {
-      setState(() => _errorMessage = 'Digite o nome de uma cidade');
+  void _onSearchChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      context.read<WeatherProvider>().searchSuggestions(_cityController.text);
+    });
+  }
+
+  /// Lógica do botão voltar
+  void _handleBack(WeatherProvider provider) {
+    // 1) Teclado aberto ou sugestões visíveis → só fecha
+    if (_focusNode.hasFocus || provider.suggestions.isNotEmpty) {
+      _focusNode.unfocus();
+      provider.clearSuggestions();
       return;
     }
 
-    _focusNode.unfocus();
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _weather = null;
-      _isFromLocation = false;
-    });
-
-    try {
-      final weather = await _weatherService.getWeatherByCity(city);
-      if (!mounted) return;
-      setState(() {
-        _weather = weather;
-        _cityName = city;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-        _isLoading = false;
-      });
+    // 2) Dois toques para sair
+    final now = DateTime.now();
+    if (_lastBackPress == null ||
+        now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
+      _lastBackPress = now;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pressione voltar novamente para sair'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
     }
-  }
 
-  Future<void> _getCurrentLocationWeather() async {
-    _focusNode.unfocus();
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _weather = null;
-      _isFromLocation = true;
-    });
-
-    try {
-      final weather = await _weatherService.getWeatherByCurrentLocation();
-      if (!mounted) return;
-      setState(() {
-        _weather = weather;
-        _cityName = 'Minha localização';
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _onRefresh() async {
-    if (_isFromLocation) {
-      await _getCurrentLocationWeather();
-    } else if (_cityName.isNotEmpty) {
-      _cityController.text = _cityName;
-      await _searchWeather();
-    }
+    // Segundo toque dentro de 2s → fecha o app
+    SystemNavigator.pop();
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _cityController.dispose();
     _focusNode.dispose();
     _pulseController.dispose();
@@ -118,199 +87,247 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final provider = context.watch<WeatherProvider>();
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Clima',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBack(provider);
+      },
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'HzClima',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            'Consulte o tempo em qualquer lugar',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? Colors.white60 : Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: provider.isLoading ? null : () => provider.toggleUnit(),
+                      child: Text(
+                        provider.useFahrenheit ? '°F' : '°C',
                         style: TextStyle(
-                          fontSize: 32,
                           fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                          color: isDark ? Colors.white : Colors.black87,
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      Text(
-                        'Consulte o tempo em qualquer lugar',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark ? Colors.white60 : Colors.grey.shade600,
-                        ),
+                    ),
+                    IconButton.filled(
+                      onPressed: provider.isLoading ? null : () => provider.loadByLocation(),
+                      icon: const Icon(Icons.my_location_rounded),
+                      tooltip: 'Usar minha localização',
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Search bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.06),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                   ),
-                  IconButton.filled(
-                    onPressed: _isLoading ? null : _getCurrentLocationWeather,
-                    icon: const Icon(Icons.my_location_rounded),
-                    tooltip: 'Usar minha localização',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  child: TextField(
+                    controller: _cityController,
+                    focusNode: _focusNode,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (value) {
+                      provider.clearSuggestions();
+                      provider.loadByCity(value);
+                    },
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Ex: São Paulo, Lisboa, Tokyo...',
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.white38 : Colors.grey.shade400,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: isDark ? Colors.white54 : Colors.grey.shade500,
+                      ),
+                      suffixIcon: provider.isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(14),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2.5),
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.arrow_forward_rounded),
+                              onPressed: () {
+                                provider.clearSuggestions();
+                                provider.loadByCity(_cityController.text);
+                              },
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 18,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Autocomplete
+                if (provider.suggestions.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: provider.suggestions.map((s) {
+                        return ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.location_on_outlined, size: 20),
+                          title: Text(s.displayName, style: const TextStyle(fontSize: 14)),
+                          onTap: () {
+                            _cityController.text = s.name;
+                            _focusNode.unfocus();
+                            provider.loadBySuggestion(s);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                // Favoritos
+                if (provider.favorites.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 36,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: provider.favorites.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final fav = provider.favorites[index];
+                        return InputChip(
+                          label: Text(fav, style: const TextStyle(fontSize: 13)),
+                          onPressed: () {
+                            _cityController.text = fav;
+                            provider.loadByCity(fav);
+                          },
+                          onDeleted: () => provider.removeFavorite(fav),
+                          deleteIconColor: isDark ? Colors.white54 : Colors.grey,
+                        );
+                      },
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 24),
 
-              // Search bar
-              Container(
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                ),
-                child: TextField(
-                  controller: _cityController,
-                  focusNode: _focusNode,
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (_) => _searchWeather(),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Ex: São Paulo, Lisboa, Tokyo...',
-                    hintStyle: TextStyle(
-                      color: isDark ? Colors.white38 : Colors.grey.shade400,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: isDark ? Colors.white54 : Colors.grey.shade500,
-                    ),
-                    suffixIcon: _isLoading
-                        ? const Padding(
-                            padding: EdgeInsets.all(14),
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2.5),
-                            ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.arrow_forward_rounded),
-                            onPressed: _searchWeather,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                const SizedBox(height: 20),
+
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 450),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.08),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: _buildContent(isDark, provider),
                   ),
                 ),
-              ),
-              const SizedBox(height: 28),
-
-              // Conteúdo com transição animada
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 450),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.08),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: _buildContent(isDark),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildContent(bool isDark) {
-    // Key é importante para o AnimatedSwitcher funcionar corretamente
-    if (_isLoading) {
+  Widget _buildContent(bool isDark, WeatherProvider provider) {
+    if (provider.isLoading) {
       return _buildLoading(isDark, key: const ValueKey('loading'));
     }
 
-    if (_errorMessage != null) {
+    if (provider.errorMessage != null) {
       return ErrorViewer(
         key: const ValueKey('error'),
-        message: _errorMessage!,
-        onRetry: () {
-          if (_isFromLocation) {
-            _getCurrentLocationWeather();
-          } else {
-            _searchWeather();
-          }
-        },
+        message: provider.errorMessage!,
+        onRetry: () => provider.refresh(),
       );
     }
 
-    if (_weather != null) {
+    if (provider.weather != null) {
       return RefreshIndicator(
         key: const ValueKey('weather'),
-        onRefresh: _onRefresh,
+        onRefresh: provider.refresh,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              // Entrada animada do card
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 600),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 30 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: WeatherCard(
-                  weather: _weather!,
-                  cityName: _cityName,
-                ),
+              WeatherCard(
+                weather: provider.weather!,
+                cityName: provider.cityName,
+                unitSymbol: provider.unitSymbol,
               ),
               const SizedBox(height: 28),
-
-              // Entrada animada da previsão (com delay)
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 40 * (1 - value)),
-                      child: child,
-                    ),
-                  );
-                },
-                child: ForecastList(forecasts: _weather!.dailyForecast),
-              ),
+              ForecastList(forecasts: provider.weather!.dailyForecast),
               const SizedBox(height: 20),
             ],
           ),
@@ -318,23 +335,43 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       );
     }
 
-    // Estado vazio
     return Center(
       key: const ValueKey('empty'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.travel_explore_rounded,
-            size: 72,
-            color: isDark ? Colors.white24 : Colors.grey.shade300,
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: Image.asset('assets/icon/icon.jpg', fit: BoxFit.cover),
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
+          Text(
+            'Bem-vindo ao HzClima!',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 10),
           Text(
             'Pesquise uma cidade ou\nuse sua localização atual',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               color: isDark ? Colors.white54 : Colors.grey.shade500,
               height: 1.4,
             ),
@@ -350,7 +387,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Ícone pulsando
           ScaleTransition(
             scale: _pulseAnimation,
             child: Container(
@@ -379,14 +415,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               fontSize: 17,
               fontWeight: FontWeight.w500,
               color: isDark ? Colors.white70 : Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Aguarde um momento',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark ? Colors.white38 : Colors.grey.shade500,
             ),
           ),
         ],

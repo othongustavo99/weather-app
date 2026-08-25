@@ -30,9 +30,9 @@ class _SplashPageState extends State<SplashPage>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.08),
       end: const Offset(0, -0.08),
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    // ← sem Future.delayed → só navega no toque
   }
 
   void _goToHome() {
@@ -61,42 +61,20 @@ class _SplashPageState extends State<SplashPage>
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // Imagem de fundo
-            Image.asset(
-              'assets/image/image.png',
-              fit: BoxFit.cover,
-            ),
-            
-            // Conteúdo central
+            Image.asset('assets/image/image.png', fit: BoxFit.cover),
             SafeArea(
               child: Column(
                 children: [
                   const Spacer(flex: 3),
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      
-                      
-                    ),
-                    
-                  ),
-
-                  const SizedBox(height: 24),
-
-        
-            
-
+                  const SizedBox(height: 20),
+                  
                   const Spacer(flex: 4),
-
-                  // Texto flutuante animado
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: SlideTransition(
                       position: _slideAnimation,
                       child: const Text(
-                        'Clique na tela para continuar',
+                        'Toque para continuar',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -113,7 +91,6 @@ class _SplashPageState extends State<SplashPage>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 48),
                 ],
               ),

@@ -1,45 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/weather_model.dart';
+import '../utils/weather_code_helper.dart';
 
 class ForecastList extends StatelessWidget {
   final List<DailyForecast> forecasts;
 
   const ForecastList({super.key, required this.forecasts});
-
-  IconData _getIcon(int code) {
-    switch (code) {
-      case 0:
-        return Icons.wb_sunny_rounded;
-      case 1:
-      case 2:
-      case 3:
-        return Icons.cloud_rounded;
-      case 45:
-      case 48:
-        return Icons.foggy;
-      case 51:
-      case 53:
-      case 55:
-      case 61:
-      case 63:
-      case 65:
-      case 80:
-      case 81:
-      case 82:
-        return Icons.water_drop_rounded;
-      case 71:
-      case 73:
-      case 75:
-        return Icons.ac_unit_rounded;
-      case 95:
-      case 96:
-      case 99:
-        return Icons.thunderstorm_rounded;
-      default:
-        return Icons.help_outline_rounded;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +74,7 @@ class ForecastList extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  _getIcon(day.weatherCode),
+                  WeatherCodeHelper.icon(day.weatherCode),
                   size: 28,
                   color: Theme.of(context).colorScheme.primary,
                 ),

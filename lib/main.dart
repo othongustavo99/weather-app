@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'pages/splash_page.dart';   // ← mudou aqui
+import 'package:provider/provider.dart';
+import 'pages/splash_page.dart';
+import 'providers/weather_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await initializeDateFormatting('pt_BR', null);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light, // ícones claros na splash
+      statusBarIconBrightness: Brightness.light,
     ),
   );
 
-  runApp(const WeatherApp());
+  final weatherProvider = WeatherProvider();
+  await weatherProvider.init();
+
+  runApp(
+    ChangeNotifierProvider.value(
+      value: weatherProvider,
+      child: const WeatherApp(),
+    ),
+  );
 }
 
 class WeatherApp extends StatelessWidget {
@@ -25,7 +34,7 @@ class WeatherApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ClimaJá',
+      title: 'HzClima',
       themeMode: ThemeMode.system,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -42,7 +51,7 @@ class WeatherApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const SplashPage(),   // ← agora começa na splash
+      home: const SplashPage(),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weather_app/models/weather_model.dart';
+import 'package:hz_clima/models/weather_model.dart';
 
 void main() {
   group('WeatherModel', () {
@@ -30,9 +30,9 @@ void main() {
     });
 
     test('description deve retornar texto correto', () {
-      final sunny = WeatherModel(temperature: 30, windSpeed: 5, weatherCode: 0);
-      final rainy = WeatherModel(temperature: 18, windSpeed: 15, weatherCode: 61);
-      final storm = WeatherModel(temperature: 22, windSpeed: 40, weatherCode: 95);
+      final sunny = WeatherModel(temperature: 30, windSpeed: 5, weatherCode: 0, fetchedAt: DateTime.now());
+      final rainy = WeatherModel(temperature: 18, windSpeed: 15, weatherCode: 61, fetchedAt: DateTime.now());
+      final storm = WeatherModel(temperature: 22, windSpeed: 40, weatherCode: 95, fetchedAt: DateTime.now());
 
       expect(sunny.description, 'Céu limpo');
       expect(rainy.description, 'Chuva');
