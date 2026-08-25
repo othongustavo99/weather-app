@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage>
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset('assets/image/image.png', fit: BoxFit.cover),
+            Image.asset('assets/image/image.jpg', fit: BoxFit.cover),
             SafeArea(
               child: Column(
                 children: [
