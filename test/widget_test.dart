@@ -1,20 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:hz_clima/main.dart';
 import 'package:hz_clima/pages/home_page.dart';
+import 'package:hz_clima/pages/splash_page.dart';
+import 'package:hz_clima/providers/weather_provider.dart';
 
 void main() {
-  testWidgets('App deve iniciar na Splash sem erros', (WidgetTester tester) async {
-    await tester.pumpWidget(const WeatherApp());
-    // Splash existe
-    expect(find.textContaining('continuar'), findsOneWidget);
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('HomePage mostra título e campo de busca', (WidgetTester tester) async {
+  testWidgets('App deve iniciar na Splash sem erros', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: HomePage()),
+      ChangeNotifierProvider(
+        create: (_) => WeatherProvider()..init(),
+        child: const WeatherApp(),
+      ),
     );
-    expect(find.text('Clima'), findsOneWidget);
+
+    // Primeiro frame da Splash
+    await tester.pump();
+
+    expect(find.byType(SplashPage), findsOneWidget);
+    expect(find.text('Carregando...'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('HomePage mostra título e campo de busca', (tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => WeatherProvider()..init(),
+        child: const MaterialApp(home: HomePage()),
+      ),
+    );
+
+    // Só o primeiro frame — não usa pumpAndSettle
+    // (Home pede localização em background e isso não termina em teste)
+    await tester.pump();
+
+    expect(find.text('HzClima'), findsOneWidget);
+    expect(
+      find.text('Consulte o tempo em qualquer lugar'),
+      findsOneWidget,
+    );
     expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('°C'), findsOneWidget);
+  });
+
+  testWidgets('HomePage exibe mensagem de boas-vindas sem clima', (tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => WeatherProvider()..init(),
+        child: const MaterialApp(home: HomePage()),
+      ),
+    );
+
+    await tester.pump();
+
+    // Enquanto não há clima carregado, aparece o empty state
+    expect(find.text('Bem-vindo ao HzClima!'), findsOneWidget);
   });
 }

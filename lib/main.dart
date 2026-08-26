@@ -16,12 +16,9 @@ void main() async {
     ),
   );
 
-  final weatherProvider = WeatherProvider();
-  await weatherProvider.init();
-
   runApp(
-    ChangeNotifierProvider.value(
-      value: weatherProvider,
+    ChangeNotifierProvider(
+      create: (_) => WeatherProvider()..init(),
       child: const WeatherApp(),
     ),
   );

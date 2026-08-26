@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -14,6 +15,9 @@ void main() {
               'temperature_2m': 28.4,
               'wind_speed_10m': 9.1,
               'weather_code': 0,
+              'relative_humidity_2m': 55,
+              'apparent_temperature': 29.0,
+              'precipitation': 0.0,
             },
             'daily': {
               'time': ['2026-08-24', '2026-08-25', '2026-08-26'],
@@ -27,12 +31,16 @@ void main() {
       });
 
       final service = WeatherService(client: mockClient);
-      final weather = await service.getWeather(latitude: -23.55, longitude: -46.63);
+      final weather = await service.getWeather(
+        latitude: -23.55,
+        longitude: -46.63,
+      );
 
       expect(weather.temperature, 28.4);
       expect(weather.windSpeed, 9.1);
       expect(weather.weatherCode, 0);
       expect(weather.description, 'Céu limpo');
+      expect(weather.humidity, 55.0);
       expect(weather.dailyForecast.length, 3);
       expect(weather.dailyForecast[2].description, 'Chuva');
     });
@@ -43,7 +51,13 @@ void main() {
           return http.Response(
             jsonEncode({
               'results': [
-                {'latitude': -23.55, 'longitude': -46.63, 'name': 'São Paulo'}
+                {
+                  'latitude': -23.55,
+                  'longitude': -46.63,
+                  'name': 'São Paulo',
+                  'admin1': 'São Paulo',
+                  'country': 'Brasil',
+                }
               ]
             }),
             200,
@@ -74,6 +88,7 @@ void main() {
       expect(weather.temperature, 26.0);
       expect(weather.weatherCode, 2);
       expect(weather.dailyForecast.length, 1);
+      expect(weather.description, 'Parcialmente nublado');
     });
 
     test('deve lançar Exception quando cidade não é encontrada', () async {
@@ -85,6 +100,19 @@ void main() {
 
       expect(
         () => service.getWeatherByCity('CidadeInexistenteXYZ'),
+        throwsA(isA<Exception>()),
+      );
+    });
+
+    test('deve lançar Exception em status HTTP de erro', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response('erro', 500);
+      });
+
+      final service = WeatherService(client: mockClient);
+
+      expect(
+        () => service.getWeather(latitude: 0, longitude: 0),
         throwsA(isA<Exception>()),
       );
     });
