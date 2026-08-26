@@ -31,7 +31,10 @@ void main() {
       expect(weather.precipitation, 0.0);
       expect(weather.dailyForecast.length, 2);
       expect(weather.dailyForecast[0].maxTemp, 28.0);
-      expect(weather.dailyForecast[0].description, 'Limpo'); // short: true no daily
+      expect(
+        weather.dailyForecast[0].description,
+        'Limpo',
+      ); // short: true no daily
       expect(weather.dailyForecast[1].weatherCode, 61);
       expect(weather.dailyForecast[1].description, 'Chuva');
     });

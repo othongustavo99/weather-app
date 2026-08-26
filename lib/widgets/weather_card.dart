@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../models/weather_model.dart';
 import '../utils/weather_code_helper.dart';
 
@@ -86,20 +87,26 @@ class WeatherCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 22),
-            // Métricas extras
+
             Wrap(
               spacing: 10,
               runSpacing: 10,
               alignment: WrapAlignment.center,
               children: [
-                _metricChip(Icons.air_rounded, '${weather.windSpeed.toStringAsFixed(1)} km/h'),
+                _metricChip(
+                  Icons.air_rounded,
+                  '${weather.windSpeed.toStringAsFixed(1)} km/h',
+                ),
                 if (weather.feelsLike != null)
                   _metricChip(
                     Icons.thermostat_rounded,
                     'Sensação ${weather.feelsLike!.toStringAsFixed(1)}$unitSymbol',
                   ),
                 if (weather.humidity != null)
-                  _metricChip(Icons.water_drop_outlined, '${weather.humidity!.toStringAsFixed(0)}%'),
+                  _metricChip(
+                    Icons.water_drop_outlined,
+                    '${weather.humidity!.toStringAsFixed(0)}%',
+                  ),
                 if (weather.precipitation != null)
                   _metricChip(
                     Icons.umbrella_rounded,

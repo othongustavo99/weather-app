@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'home_page.dart';
 
 class SplashPage extends StatefulWidget {
@@ -22,7 +24,6 @@ class _SplashPageState extends State<SplashPage>
       duration: const Duration(seconds: 3),
     )..forward();
 
-    // Navega automaticamente após 3 segundos
     Timer(const Duration(seconds: 3), () {
       if (mounted) _goToHome();
     });
@@ -53,7 +54,7 @@ class _SplashPageState extends State<SplashPage>
         fit: StackFit.expand,
         children: [
           Image.asset('assets/image/image.png', fit: BoxFit.cover),
-          // Barra de carregamento azul na parte de baixo
+
           Positioned(
             left: 0,
             right: 0,
@@ -72,7 +73,9 @@ class _SplashPageState extends State<SplashPage>
                           child: LinearProgressIndicator(
                             value: _progressController.value,
                             minHeight: 5,
-                            backgroundColor: Colors.white.withValues(alpha: 0.25),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.25,
+                            ),
                             valueColor: const AlwaysStoppedAnimation<Color>(
                               Color(0xFF2F80ED),
                             ),

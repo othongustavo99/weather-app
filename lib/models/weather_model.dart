@@ -38,12 +38,14 @@ class WeatherModel {
       final codes = dailyData['weather_code'] as List;
 
       for (int i = 0; i < times.length; i++) {
-        daily.add(DailyForecast(
-          date: DateTime.parse(times[i] as String),
-          maxTemp: (maxTemps[i] as num).toDouble(),
-          minTemp: (minTemps[i] as num).toDouble(),
-          weatherCode: codes[i] as int,
-        ));
+        daily.add(
+          DailyForecast(
+            date: DateTime.parse(times[i] as String),
+            maxTemp: (maxTemps[i] as num).toDouble(),
+            minTemp: (minTemps[i] as num).toDouble(),
+            weatherCode: codes[i] as int,
+          ),
+        );
       }
     }
 

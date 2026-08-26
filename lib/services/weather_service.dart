@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+
 import '../models/weather_model.dart';
 
 class WeatherService {
@@ -32,18 +34,26 @@ class WeatherService {
     );
 
     try {
-      final response = await client.get(uri).timeout(const Duration(seconds: 12));
+      final response = await client
+          .get(uri)
+          .timeout(const Duration(seconds: 12));
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return WeatherModel.fromJson(json, locationName: locationName);
       }
       throw Exception('Falha ao buscar o clima (${response.statusCode})');
     } on SocketException {
-      throw Exception('Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.');
+      throw Exception(
+        'Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.',
+      );
     } on TimeoutException {
-      throw Exception('Tempo esgotado. Verifique sua conexão e tente novamente.');
+      throw Exception(
+        'Tempo esgotado. Verifique sua conexão e tente novamente.',
+      );
     } on http.ClientException {
-      throw Exception('Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.');
+      throw Exception(
+        'Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.',
+      );
     }
   }
 
@@ -82,7 +92,10 @@ class WeatherService {
     bool useFahrenheit = false,
   }) async {
     final position = await _determinePosition();
-    final placeName = await _reverseGeocode(position.latitude, position.longitude);
+    final placeName = await _reverseGeocode(
+      position.latitude,
+      position.longitude,
+    );
     return getWeather(
       latitude: position.latitude,
       longitude: position.longitude,
@@ -91,8 +104,10 @@ class WeatherService {
     );
   }
 
-  /// Autocomplete
-  Future<List<CitySuggestion>> searchCities(String query, {int count = 5}) async {
+  Future<List<CitySuggestion>> searchCities(
+    String query, {
+    int count = 5,
+  }) async {
     if (query.trim().length < 2) return [];
 
     final geoUri = Uri.parse(
@@ -101,7 +116,9 @@ class WeatherService {
     );
 
     try {
-      final response = await client.get(geoUri).timeout(const Duration(seconds: 8));
+      final response = await client
+          .get(geoUri)
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode != 200) return [];
 
       final geoJson = jsonDecode(response.body) as Map<String, dynamic>;
@@ -112,7 +129,9 @@ class WeatherService {
           .map((e) => CitySuggestion.fromJson(e as Map<String, dynamic>))
           .toList();
     } on SocketException {
-      throw Exception('Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.');
+      throw Exception(
+        'Sem conexão com a internet. Verifique o Wi‑Fi ou os dados móveis.',
+      );
     } on TimeoutException {
       throw Exception('Tempo esgotado ao buscar cidades.');
     } catch (_) {
@@ -126,10 +145,13 @@ class WeatherService {
         'https://api.bigdatacloud.net/data/reverse-geocode-client'
         '?latitude=$lat&longitude=$lon&localityLanguage=pt',
       );
-      final response = await client.get(uri).timeout(const Duration(seconds: 8));
+      final response = await client
+          .get(uri)
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode != 200) return null;
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      final city = json['city'] as String? ??
+      final city =
+          json['city'] as String? ??
           json['locality'] as String? ??
           json['principalSubdivision'] as String?;
       return (city != null && city.isNotEmpty) ? city : null;

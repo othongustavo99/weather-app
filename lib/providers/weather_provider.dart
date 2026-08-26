@@ -47,7 +47,6 @@ class WeatherProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyUnit, useFahrenheit);
 
-    // Recarrega o clima atual na nova unidade
     if (weather != null) {
       if (isFromLocation) {
         await loadByLocation();

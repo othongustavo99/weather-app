@@ -39,8 +39,7 @@ class WidgetService {
 
     if (!kIsWeb && Platform.isAndroid) {
       try {
-        final supported =
-            await HomeWidget.isRequestPinWidgetSupported();
+        final supported = await HomeWidget.isRequestPinWidgetSupported();
 
         if (supported != true) {
           return false;
@@ -98,23 +97,16 @@ class WidgetService {
     int? weatherCode,
     String unitSymbol = '°C',
   }) async {
-    await HomeWidget.saveWidgetData<String>(
-      'city_name',
-      cityName,
-    );
+    await HomeWidget.saveWidgetData<String>('city_name', cityName);
 
     await HomeWidget.saveWidgetData<String>(
       'temperature',
-      temperature != null
-          ? '${temperature.round()}$unitSymbol'
-          : '--',
+      temperature != null ? '${temperature.round()}$unitSymbol' : '--',
     );
 
     await HomeWidget.saveWidgetData<String>(
       'feels_like',
-      feelsLike != null
-          ? 'Sensação ${feelsLike.round()}$unitSymbol'
-          : '',
+      feelsLike != null ? 'Sensação ${feelsLike.round()}$unitSymbol' : '',
     );
 
     await HomeWidget.saveWidgetData<String>(
@@ -132,7 +124,7 @@ class WidgetService {
     await HomeWidget.saveWidgetData<String>(
       'updated_time',
       '${now.hour.toString().padLeft(2, '0')}:'
-      '${now.minute.toString().padLeft(2, '0')}',
+          '${now.minute.toString().padLeft(2, '0')}',
     );
   }
 }

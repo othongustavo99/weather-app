@@ -57,8 +57,8 @@ void main() {
                   'name': 'São Paulo',
                   'admin1': 'São Paulo',
                   'country': 'Brasil',
-                }
-              ]
+                },
+              ],
             }),
             200,
           );

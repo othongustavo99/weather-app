@@ -23,7 +23,6 @@ void main() {
       ),
     );
 
-    // Primeiro frame da Splash
     await tester.pump();
 
     expect(find.byType(SplashPage), findsOneWidget);
@@ -39,20 +38,17 @@ void main() {
       ),
     );
 
-    // Só o primeiro frame — não usa pumpAndSettle
-    // (Home pede localização em background e isso não termina em teste)
     await tester.pump();
 
     expect(find.text('HzClima'), findsOneWidget);
-    expect(
-      find.text('Consulte o tempo em qualquer lugar'),
-      findsOneWidget,
-    );
+    expect(find.text('Consulte o tempo em qualquer lugar'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('°C'), findsOneWidget);
   });
 
-  testWidgets('HomePage exibe mensagem de boas-vindas sem clima', (tester) async {
+  testWidgets('HomePage exibe mensagem de boas-vindas sem clima', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => WeatherProvider()..init(),
@@ -62,7 +58,6 @@ void main() {
 
     await tester.pump();
 
-    // Enquanto não há clima carregado, aparece o empty state
     expect(find.text('Bem-vindo ao HzClima!'), findsOneWidget);
   });
 }

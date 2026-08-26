@@ -105,16 +105,13 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  /// Lógica do botão voltar
   void _handleBack(WeatherProvider provider) {
-    // 1) Teclado aberto ou sugestões visíveis → só fecha
     if (_focusNode.hasFocus || provider.suggestions.isNotEmpty) {
       _focusNode.unfocus();
       provider.clearSuggestions();
       return;
     }
 
-    // 2) Dois toques para sair
     final now = DateTime.now();
     if (_lastBackPress == null ||
         now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
@@ -130,7 +127,6 @@ class _HomePageState extends State<HomePage>
       return;
     }
 
-    // Segundo toque dentro de 2s → fecha o app
     SystemNavigator.pop();
   }
 
@@ -164,7 +160,6 @@ class _HomePageState extends State<HomePage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Row(
                   children: [
                     Expanded(
@@ -219,7 +214,6 @@ class _HomePageState extends State<HomePage>
                 ),
                 const SizedBox(height: 16),
 
-                // Search bar
                 Container(
                   decoration: BoxDecoration(
                     color: isDark
@@ -285,7 +279,6 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
 
-                // Autocomplete
                 if (provider.suggestions.isNotEmpty)
                   Container(
                     margin: const EdgeInsets.only(top: 8),
@@ -322,7 +315,6 @@ class _HomePageState extends State<HomePage>
                     ),
                   ),
 
-                // Favoritos
                 if (provider.favorites.isNotEmpty) ...[
                   const SizedBox(height: 14),
                   SizedBox(
