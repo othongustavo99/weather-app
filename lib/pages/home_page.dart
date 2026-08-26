@@ -1,7 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
+import '../services/widget_service.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/error_viewer.dart';
 import '../widgets/weather_card.dart';
@@ -14,11 +17,63 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _cityController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   Timer? _debounce;
   DateTime? _lastBackPress;
+  bool _locationRequested = false;
+
+  Future<void> _requestLocationAndLoad() async {
+    if (_locationRequested) return;
+    _locationRequested = true;
+    final provider = context.read<WeatherProvider>();
+    if (provider.weather == null && !provider.isLoading) {
+      await provider.loadByLocation();
+    }
+  }
+
+  Future<void> _addHomeWidget() async {
+    final provider = context.read<WeatherProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      final success = await WidgetService.requestPinWidget(
+        cityName: provider.cityName.isNotEmpty
+            ? provider.cityName
+            : 'Minha localização',
+        temperature: provider.weather?.temperature,
+        description: provider.weather?.description,
+        unitSymbol: provider.unitSymbol,
+      );
+
+      if (!mounted) return;
+
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? 'Widget solicitado! Confirme na tela do sistema para adicionar.'
+                : 'Não foi possível solicitar o widget. No Android, segure o ícone do app e escolha "Widgets".',
+          ),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Erro ao adicionar widget: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -36,6 +91,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
     _cityController.addListener(_onSearchChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestLocationAndLoad();
+    });
   }
 
   void _onSearchChanged() {
@@ -96,7 +155,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _handleBack(provider);
       },
       child: Scaffold(
-        backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+        backgroundColor: isDark
+            ? const Color(0xFF121212)
+            : const Color(0xFFF5F7FA),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -123,14 +184,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             'Consulte o tempo em qualquer lugar',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? Colors.white60 : Colors.grey.shade600,
+                              color: isDark
+                                  ? Colors.white60
+                                  : Colors.grey.shade600,
                             ),
                           ),
                         ],
                       ),
                     ),
                     TextButton(
-                      onPressed: provider.isLoading ? null : () => provider.toggleUnit(),
+                      onPressed: provider.isLoading
+                          ? null
+                          : () => provider.toggleUnit(),
                       child: Text(
                         provider.useFahrenheit ? '°F' : '°C',
                         style: TextStyle(
@@ -141,11 +206,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     ),
                     IconButton.filled(
-                      onPressed: provider.isLoading ? null : () => provider.loadByLocation(),
-                      icon: const Icon(Icons.my_location_rounded),
-                      tooltip: 'Usar minha localização',
+                      onPressed: provider.isLoading ? null : _addHomeWidget,
+                      icon: const Icon(Icons.widgets_rounded),
+                      tooltip: 'Adicionar widget na tela inicial',
                       style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .primaryContainer,
                       ),
                     ),
                   ],
@@ -155,7 +222,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 // Search bar
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: isDark
                         ? null
@@ -194,7 +263,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               child: SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2.5),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                ),
                               ),
                             )
                           : IconButton(
@@ -233,8 +304,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       children: provider.suggestions.map((s) {
                         return ListTile(
                           dense: true,
-                          leading: const Icon(Icons.location_on_outlined, size: 20),
-                          title: Text(s.displayName, style: const TextStyle(fontSize: 14)),
+                          leading: const Icon(
+                            Icons.location_on_outlined,
+                            size: 20,
+                          ),
+                          title: Text(
+                            s.displayName,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                           onTap: () {
                             _cityController.text = s.name;
                             _focusNode.unfocus();
@@ -257,13 +334,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       itemBuilder: (context, index) {
                         final fav = provider.favorites[index];
                         return InputChip(
-                          label: Text(fav, style: const TextStyle(fontSize: 13)),
+                          label: Text(
+                            fav,
+                            style: const TextStyle(fontSize: 13),
+                          ),
                           onPressed: () {
                             _cityController.text = fav;
                             provider.loadByCity(fav);
                           },
                           onDeleted: () => provider.removeFavorite(fav),
-                          deleteIconColor: isDark ? Colors.white54 : Colors.grey,
+                          deleteIconColor: isDark
+                              ? Colors.white54
+                              : Colors.grey,
                         );
                       },
                     ),
@@ -368,7 +450,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           const SizedBox(height: 10),
           Text(
-            'Pesquise uma cidade ou\nuse sua localização atual',
+            'Detectando sua localização...\nou pesquise uma cidade acima',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -396,8 +478,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                    Theme.of(context).colorScheme.primary
+                        .withValues(alpha: 0.2),
+                    Theme.of(context).colorScheme.primary
+                        .withValues(alpha: 0.05),
                   ],
                 ),
               ),

@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/weather_model.dart';
 import '../services/weather_service.dart';
+import '../services/widget_service.dart';
 
 class WeatherProvider extends ChangeNotifier {
   final WeatherService _service = WeatherService();
@@ -25,6 +26,20 @@ class WeatherProvider extends ChangeNotifier {
     favorites = prefs.getStringList(_keyFavorites) ?? [];
     useFahrenheit = prefs.getBool(_keyUnit) ?? false;
     notifyListeners();
+  }
+
+  Future<void> _syncWidget() async {
+    if (weather == null) return;
+    try {
+      await WidgetService.updateWidgetData(
+        cityName: cityName,
+        temperature: weather!.temperature,
+        feelsLike: weather!.feelsLike,
+        description: weather!.description,
+        weatherCode: weather!.weatherCode,
+        unitSymbol: unitSymbol,
+      );
+    } catch (_) {}
   }
 
   Future<void> toggleUnit() async {
@@ -65,6 +80,7 @@ class WeatherProvider extends ChangeNotifier {
       weather = result;
       cityName = result.locationName ?? city;
       await _addFavorite(cityName);
+      await _syncWidget();
     } catch (e) {
       errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -91,6 +107,7 @@ class WeatherProvider extends ChangeNotifier {
       weather = result;
       cityName = result.locationName ?? suggestion.displayName;
       await _addFavorite(cityName);
+      await _syncWidget();
     } catch (e) {
       errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -113,6 +130,7 @@ class WeatherProvider extends ChangeNotifier {
       );
       weather = result;
       cityName = result.locationName ?? 'Minha localização';
+      await _syncWidget();
     } catch (e) {
       errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {

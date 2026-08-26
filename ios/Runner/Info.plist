@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O HzClima precisa da sua localização para mostrar o clima da sua cidade.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>O HzClima precisa da sua localização para mostrar o clima da sua cidade.</string>
 </dict>
 </plist>
