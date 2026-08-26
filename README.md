@@ -24,7 +24,7 @@
 
 <p align="center">
   <img src="assets/screenshots/screenshot9.png" alt="Tela principal atualizada" width="220" />
-  <img src="assets/screenshots/screenshot10.jpg" alt="Busca e favoritos" width="220" />
+  <img src="assets/screenshots/screenshot10.png" alt="Busca e favoritos" width="220" />
   <img src="assets/screenshots/screenshot11.png" alt="Widget e dark mode" width="220" />
 </p>
 
