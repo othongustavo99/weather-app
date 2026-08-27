@@ -58,7 +58,7 @@ flutter:
 
   assets:
     - assets/image/image.png
-    - assets/icon/icon.png
+    - assets/icon/icon.jpeg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -94,7 +94,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/icon/icon.jpeg"
   adaptive_icon_background: "#2F80ED"   # cor de fundo do ícone adaptativo
-  adaptive_icon_foreground: "assets/icon/icon.png"
+  adaptive_icon_foreground: "assets/icon/icon.jpeg"
   min_sdk_android: 21

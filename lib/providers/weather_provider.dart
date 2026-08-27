@@ -37,6 +37,8 @@ class WeatherProvider extends ChangeNotifier {
         feelsLike: weather!.feelsLike,
         description: weather!.description,
         weatherCode: weather!.weatherCode,
+        latitude: weather!.latitude,
+        longitude: weather!.longitude,
         unitSymbol: unitSymbol,
       );
     } catch (_) {}

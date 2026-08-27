@@ -17,6 +17,8 @@ class WidgetService {
     double? feelsLike,
     String? description,
     int? weatherCode,
+    double? latitude,
+    double? longitude,
     String unitSymbol = '°C',
   }) async {
     await _saveData(
@@ -69,6 +71,8 @@ class WidgetService {
     String? description,
     int? weatherCode,
     String unitSymbol = '°C',
+    required double? latitude,
+    required double? longitude,
   }) async {
     await _saveData(
       cityName: cityName,
@@ -90,13 +94,15 @@ class WidgetService {
   }
 
   static Future<void> _saveData({
-    required String cityName,
-    double? temperature,
-    double? feelsLike,
-    String? description,
-    int? weatherCode,
-    String unitSymbol = '°C',
-  }) async {
+  required String cityName,
+  double? temperature,
+  double? feelsLike,
+  String? description,
+  int? weatherCode,
+  double? latitude,
+  double? longitude,
+  String unitSymbol = '°C',
+}) async {
     await HomeWidget.saveWidgetData<String>('city_name', cityName);
 
     await HomeWidget.saveWidgetData<String>(
@@ -125,6 +131,20 @@ class WidgetService {
       'updated_time',
       '${now.hour.toString().padLeft(2, '0')}:'
           '${now.minute.toString().padLeft(2, '0')}',
+    );
+    await HomeWidget.saveWidgetData<String>(
+      'latitude',
+      latitude?.toString() ?? '',
+    );
+
+    await HomeWidget.saveWidgetData<String>(
+      'longitude',
+      longitude?.toString() ?? '',
+    );
+
+    await HomeWidget.saveWidgetData<String>(
+      'use_fahrenheit',
+      unitSymbol == '°F' ? 'true' : 'false',
     );
   }
 }

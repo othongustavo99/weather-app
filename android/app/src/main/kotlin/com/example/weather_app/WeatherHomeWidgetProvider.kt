@@ -4,10 +4,23 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.RemoteViews
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetProvider
+import java.util.concurrent.TimeUnit
 
 class WeatherHomeWidgetProvider : HomeWidgetProvider() {
+
+    companion object {
+
+        private const val WORK_NAME =
+            "hzclima_weather_update"
+
+        private const val UPDATE_INTERVAL_HOURS =
+            1L
+    }
 
     override fun onUpdate(
         context: Context,
@@ -16,14 +29,19 @@ class WeatherHomeWidgetProvider : HomeWidgetProvider() {
         widgetData: SharedPreferences
     ) {
 
+        /*
+         * Garante que o atualizador esteja agendado.
+         */
+        scheduleWeatherWorker(context)
+
         appWidgetIds.forEach { widgetId ->
 
-            val views = RemoteViews(
-                context.packageName,
-                R.layout.weather_home_widget
-            )
+            val views =
+                RemoteViews(
+                    context.packageName,
+                    R.layout.weather_home_widget
+                )
 
-            // Dados salvos pelo Flutter
             val city =
                 widgetData.getString(
                     "city_name",
@@ -60,7 +78,6 @@ class WeatherHomeWidgetProvider : HomeWidgetProvider() {
                     "0"
                 )?.toIntOrNull() ?: 0
 
-            // Textos
             views.setTextViewText(
                 R.id.widget_city,
                 city
@@ -86,13 +103,11 @@ class WeatherHomeWidgetProvider : HomeWidgetProvider() {
                 "Atualizado $updatedTime"
             )
 
-            // Ícone climático
             views.setTextViewText(
                 R.id.widget_weather_icon,
                 getWeatherIcon(weatherCode)
             )
 
-            // Ao tocar no widget, abre o aplicativo
             val pendingIntent =
                 HomeWidgetLaunchIntent.getActivity(
                     context,
@@ -111,7 +126,44 @@ class WeatherHomeWidgetProvider : HomeWidgetProvider() {
         }
     }
 
-    private fun getWeatherIcon(code: Int): String {
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+
+        scheduleWeatherWorker(context)
+    }
+
+    override fun onDisabled(context: Context) {
+
+        WorkManager
+            .getInstance(context)
+            .cancelUniqueWork(WORK_NAME)
+
+        super.onDisabled(context)
+    }
+
+    private fun scheduleWeatherWorker(
+        context: Context
+    ) {
+
+        val request =
+            PeriodicWorkRequestBuilder<WeatherUpdateWorker>(
+                UPDATE_INTERVAL_HOURS,
+                TimeUnit.HOURS
+            )
+                .build()
+
+        WorkManager
+            .getInstance(context)
+            .enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                request
+            )
+    }
+
+    private fun getWeatherIcon(
+        code: Int
+    ): String {
 
         return when (code) {
 

@@ -1,125 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:padding="0dp">
 
-    <!-- Conteúdo principal -->
+    <!--
+        Círculo do widget.
+        O ImageView usa centerInside para manter 1:1,
+        impedindo que o círculo vire um oval.
+    -->
+    <ImageView
+        android:id="@+id/widget_circle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/widget_circle"
+        android:scaleType="centerInside"
+        android:contentDescription="@null" />
+
+    <!-- Conteúdo -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="12dp">
 
-        <!-- Cabeçalho -->
+        <!-- Cidade -->
+        <TextView
+            android:id="@+id/widget_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bragança Paulista"
+            android:textColor="#E0FFFFFF"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center" />
+
+        <!-- Temperatura -->
+        <TextView
+            android:id="@+id/widget_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="16°C"
+            android:textColor="#FFFFFFFF"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:gravity="center" />
+
+        <!-- Ícone + descrição -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp">
 
             <TextView
-                android:id="@+id/widget_city"
-                android:layout_width="0dp"
+                android:id="@+id/widget_weather_icon"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Bragança Paulista"
+                android:text="☁"
                 android:textColor="#FFFFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/widget_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Parcialmente..."
+                android:textColor="#D0FFFFFF"
+                android:textSize="11sp"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
-            <TextView
-                android:id="@+id/widget_menu"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:gravity="center"
-                android:text="⋮"
-                android:textColor="#BFFFFFFF"
-                android:textSize="22sp" />
-
         </LinearLayout>
 
-        <!-- Área principal -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <!-- Temperatura -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/widget_temperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="18°C"
-                    android:textColor="#FFFFFFFF"
-                    android:textSize="40sp"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false" />
-
-                <TextView
-                    android:id="@+id/widget_description"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="Parcialmente nublado"
-                    android:textColor="#DFFFFFFF"
-                    android:textSize="12sp"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-
-            </LinearLayout>
-
-            <!-- Ícone -->
-            <TextView
-                android:id="@+id/widget_weather_icon"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:gravity="center"
-                android:text="☁"
-                android:textColor="#FFFFFFFF"
-                android:textSize="48sp" />
-
-        </LinearLayout>
-
-        <!-- Rodapé -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Sensação térmica -->
+        <TextView
+            android:id="@+id/widget_feels"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginTop="4dp"
+            android:text="Sensação 17°C"
+            android:textColor="#B0FFFFFF"
+            android:textSize="10sp"
+            android:gravity="center" />
 
-            <TextView
-                android:id="@+id/widget_feels"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sensação 18°C"
-                android:textColor="#BFFFFFFF"
-                android:textSize="11sp"
-                android:maxLines="1" />
-
-            <TextView
-                android:id="@+id/widget_updated"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="20:44"
-                android:textColor="#9FFFFFFF"
-                android:textSize="10sp" />
-
-        </LinearLayout>
+        <!-- Atualizado -->
+        <TextView
+            android:id="@+id/widget_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="Atualizado 05:21"
+            android:textColor="#80FFFFFF"
+            android:textSize="9sp"
+            android:gravity="center" />
 
     </LinearLayout>
 

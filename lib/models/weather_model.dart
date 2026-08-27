@@ -10,6 +10,8 @@ class WeatherModel {
   final List<DailyForecast> dailyForecast;
   final String? locationName;
   final DateTime fetchedAt;
+  final double? latitude;
+  final double? longitude;
 
   const WeatherModel({
     required this.temperature,
@@ -21,6 +23,8 @@ class WeatherModel {
     this.dailyForecast = const [],
     this.locationName,
     required this.fetchedAt,
+    this.latitude,
+    this.longitude,
   });
 
   factory WeatherModel.fromJson(
@@ -50,22 +54,36 @@ class WeatherModel {
     }
 
     return WeatherModel(
-      temperature: (current['temperature_2m'] as num).toDouble(),
-      windSpeed: (current['wind_speed_10m'] as num).toDouble(),
-      weatherCode: current['weather_code'] as int,
-      humidity: current['relative_humidity_2m'] != null
-          ? (current['relative_humidity_2m'] as num).toDouble()
-          : null,
-      feelsLike: current['apparent_temperature'] != null
-          ? (current['apparent_temperature'] as num).toDouble()
-          : null,
-      precipitation: current['precipitation'] != null
-          ? (current['precipitation'] as num).toDouble()
-          : null,
-      dailyForecast: daily,
-      locationName: locationName,
-      fetchedAt: DateTime.now(),
-    );
+  temperature: (current['temperature_2m'] as num).toDouble(),
+  windSpeed: (current['wind_speed_10m'] as num).toDouble(),
+  weatherCode: current['weather_code'] as int,
+
+  humidity: current['relative_humidity_2m'] != null
+      ? (current['relative_humidity_2m'] as num).toDouble()
+      : null,
+
+  feelsLike: current['apparent_temperature'] != null
+      ? (current['apparent_temperature'] as num).toDouble()
+      : null,
+
+  precipitation: current['precipitation'] != null
+      ? (current['precipitation'] as num).toDouble()
+      : null,
+
+  dailyForecast: daily,
+
+  locationName: locationName,
+
+  fetchedAt: DateTime.now(),
+
+  latitude: json['latitude'] != null
+      ? (json['latitude'] as num).toDouble()
+      : null,
+
+  longitude: json['longitude'] != null
+      ? (json['longitude'] as num).toDouble()
+      : null,
+);
   }
 
   String get description => WeatherCodeHelper.description(weatherCode);
