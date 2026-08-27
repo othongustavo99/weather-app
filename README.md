@@ -1,7 +1,7 @@
 # HzClima
 
 <p align="center">
-  <img src="assets/icon/icon.jpg" alt="HzClima Logo" width="120" style="border-radius: 24px;" />
+  <img src="assets/icon/icon.jpeg" alt="HzClima Logo" width="120" style="border-radius: 24px;" />
 </p>
 
 <p align="center">
