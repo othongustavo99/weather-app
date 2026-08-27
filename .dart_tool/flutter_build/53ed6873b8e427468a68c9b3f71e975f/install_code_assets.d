@@ -1,1 +1,0 @@
- C:\\Users\\othon\\Documents\\clima\\weather_app\\.dart_tool\\flutter_build\\53ed6873b8e427468a68c9b3f71e975f\\native_assets.json: 
