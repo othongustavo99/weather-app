@@ -37,9 +37,11 @@ class WeatherUpdateWorker(
                 widgetData.getString("longitude", null)
                     ?.toDoubleOrNull()
 
-            if (latitude == null || longitude == null) {
-                return@withContext Result.success()
+           if (latitude == null || longitude == null) {
+                return@withContext Result.failure()
             }
+
+            
 
             val city =
                 widgetData.getString(

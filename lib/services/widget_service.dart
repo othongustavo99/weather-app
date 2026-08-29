@@ -28,6 +28,8 @@ class WidgetService {
       description: description,
       weatherCode: weatherCode,
       unitSymbol: unitSymbol,
+      latitude: latitude, // ← adicionar
+      longitude: longitude,
     );
 
     try {
@@ -81,6 +83,8 @@ class WidgetService {
       description: description,
       weatherCode: weatherCode,
       unitSymbol: unitSymbol,
+      latitude: latitude,
+      longitude: longitude,
     );
 
     try {
@@ -94,15 +98,15 @@ class WidgetService {
   }
 
   static Future<void> _saveData({
-  required String cityName,
-  double? temperature,
-  double? feelsLike,
-  String? description,
-  int? weatherCode,
-  double? latitude,
-  double? longitude,
-  String unitSymbol = '°C',
-}) async {
+    required String cityName,
+    double? temperature,
+    double? feelsLike,
+    String? description,
+    int? weatherCode,
+    double? latitude,
+    double? longitude,
+    String unitSymbol = '°C',
+  }) async {
     await HomeWidget.saveWidgetData<String>('city_name', cityName);
 
     await HomeWidget.saveWidgetData<String>(
@@ -132,15 +136,15 @@ class WidgetService {
       '${now.hour.toString().padLeft(2, '0')}:'
           '${now.minute.toString().padLeft(2, '0')}',
     );
-    await HomeWidget.saveWidgetData<String>(
-      'latitude',
-      latitude?.toString() ?? '',
-    );
-
-    await HomeWidget.saveWidgetData<String>(
-      'longitude',
-      longitude?.toString() ?? '',
-    );
+    if (latitude != null) {
+      await HomeWidget.saveWidgetData<String>('latitude', latitude.toString());
+    }
+    if (longitude != null) {
+      await HomeWidget.saveWidgetData<String>(
+        'longitude',
+        longitude.toString(),
+      );
+    }
 
     await HomeWidget.saveWidgetData<String>(
       'use_fahrenheit',

@@ -44,7 +44,11 @@ class _HomePageState extends State<HomePage>
             ? provider.cityName
             : 'Minha localização',
         temperature: provider.weather?.temperature,
+        feelsLike: provider.weather?.feelsLike,
         description: provider.weather?.description,
+        weatherCode: provider.weather?.weatherCode,
+        latitude: provider.weather?.latitude,
+        longitude: provider.weather?.longitude,
         unitSymbol: provider.unitSymbol,
       );
 
