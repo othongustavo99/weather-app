@@ -1,4 +1,4 @@
-# HzClima
+# 🌤️ HzClima
 
 <p align="center">
   <img src="assets/icon/icon.jpeg" alt="HzClima Logo" width="120" style="border-radius: 24px;" />
@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/Provider-State%20Management-green" alt="Provider" />
   <img src="https://img.shields.io/badge/API-Open--Meteo-blue" alt="Open-Meteo" />
   <img src="https://img.shields.io/badge/Widget-home__widget-orange" alt="Home Widget" />
+  <img src="https://img.shields.io/badge/WorkManager-Atualização%20horária-purple" alt="WorkManager" />
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License" />
 </p>
 
@@ -23,7 +24,7 @@
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="assets/screenshots/screenshot9.png" alt="Tela principal atualizada" width="220" />
+  <img src="assets/screenshots/screenshot9.png" alt="Tela principal" width="220" />
   <img src="assets/screenshots/screenshot10.png" alt="Busca e favoritos" width="220" />
   <img src="assets/screenshots/screenshot11.png" alt="Widget e dark mode" width="220" />
 </p>
@@ -50,112 +51,128 @@
 
 ## ✨ Funcionalidades
 
-* **Clima em tempo real** via [Open-Meteo](https://open-meteo.com/) — sem API key.
-* **Busca por cidade** com autocomplete e debounce.
-* **Localização atual** utilizando GPS e reverse geocoding.
-* **Previsão de 5 dias**.
-* **Métricas meteorológicas** como:
+* 🌦️ **Clima em tempo real** via [Open-Meteo](https://open-meteo.com/) — sem API key
+* 🔎 **Busca por cidade** com autocomplete e debounce
+* 📍 **Localização atual** utilizando GPS e reverse geocoding
+* 📅 **Previsão de 5 dias**
+* 💧 **Métricas meteorológicas**
 
   * Umidade
   * Sensação térmica
   * Precipitação
   * Velocidade do vento
-* **Alternância entre °C e °F** com persistência local.
-* **Favoritos de cidades** utilizando SharedPreferences.
-* **Widget na tela inicial do Android** através do `home_widget`.
-* **Pin do widget pelo aplicativo**, quando permitido pelo sistema.
-* **Tema claro e escuro**, incluindo suporte ao tema do sistema.
-* **Splash screen animada** com branding.
-* **Pull-to-refresh** para atualização manual.
-* **Mensagens de erro amigáveis** para:
+* 🌡️ **Alternância entre °C e °F** com persistência local
+* ⭐ **Favoritos de cidades** utilizando SharedPreferences
+* 📱 **Widget na tela inicial do Android** utilizando `home_widget`
 
-  * Falta de internet
+  * Pin do widget pelo aplicativo, quando permitido pelo sistema
+  * Atualização automática a cada hora
+  * WorkManager + worker nativo em Kotlin
+  * Coordenadas e unidade persistidas para execução em background
+* 🌓 **Tema claro, escuro e baseado no sistema**
+* 🎨 **Material Design 3**
+* 🚀 **Splash screen animada** com branding
+* 🔄 **Pull-to-refresh** para atualização manual
+* ⚠️ **Mensagens de erro amigáveis**
+
+  * Sem internet
   * Timeout
   * Cidade não encontrada
-  * Permissões de localização
-* **Botão voltar inteligente**:
+  * Permissões
+* 🔙 **Botão voltar inteligente**
 
-  * Fecha o teclado/sugestões primeiro.
-  * Requer dois toques para sair do aplicativo.
-* **Animações** de loading, transições de conteúdo e splash.
-* **Build release Android estável**, com configuração de R8/ProGuard e regras necessárias para o WorkManager.
+  * Fecha teclado/sugestões primeiro
+  * Dois toques para sair
+* ✨ **Animações**
+
+  * Loading
+  * Transições
+  * Splash
+* 📦 **Build release Android** com R8/ProGuard e regras específicas para WorkManager
 
 ---
 
-## 🛠️ Stack & Competências
+# 🛠️ Stack & Competências
 
-### Linguagens e frameworks
+## 💻 Linguagens e Frameworks
 
 | Tecnologia            | Uso no projeto                               |
 | --------------------- | -------------------------------------------- |
 | **Dart 3**            | Linguagem principal                          |
 | **Flutter**           | Desenvolvimento da interface multiplataforma |
-| **Material Design 3** | Design system, temas e componentes modernos  |
-
-### Arquitetura e organização
-
-| Competência                        | Aplicação                                                       |
-| ---------------------------------- | --------------------------------------------------------------- |
-| **Arquitetura em camadas**         | `models`, `services`, `providers`, `pages`, `widgets` e `utils` |
-| **State Management**               | Provider + ChangeNotifier                                       |
-| **Separação de responsabilidades** | Interface desacoplada da lógica de negócio e acesso à API       |
-| **Helpers reutilizáveis**          | `WeatherCodeHelper` para ícones, textos e gradientes            |
-
-### Dados e rede
-
-| Competência              | Aplicação                                                                 |
-| ------------------------ | ------------------------------------------------------------------------- |
-| **API REST**             | Requisições HTTP e processamento de JSON                                  |
-| **Open-Meteo Forecast**  | Clima atual, temperatura, vento, umidade, sensação térmica e precipitação |
-| **Open-Meteo Geocoding** | Busca de cidades e autocomplete                                           |
-| **Reverse geocoding**    | Conversão de latitude/longitude para nome da cidade                       |
-| **Tratamento de erros**  | `SocketException`, `TimeoutException` e mensagens amigáveis               |
-| **Timeouts**             | Limite de tempo nas requisições HTTP                                      |
-
-### Dispositivo e persistência
-
-| Competência             | Aplicação                                                    |
-| ----------------------- | ------------------------------------------------------------ |
-| **Geolocalização**      | `geolocator` + gerenciamento de permissões                   |
-| **Armazenamento local** | `shared_preferences` para favoritos e unidade de temperatura |
-| **Home screen widget**  | `home_widget` + `WeatherHomeWidgetProvider` em Kotlin        |
-| **Datas/localização**   | `intl` com suporte a `pt_BR`                                 |
-
-### UX / UI
-
-| Competência                   | Aplicação                                          |
-| ----------------------------- | -------------------------------------------------- |
-| **Animações**                 | `AnimationController`, Fade, Slide e Scale         |
-| **Estados de UI**             | Estados de loading, erro e conteúdo                |
-| **Autocomplete com debounce** | Sugestões durante a digitação                      |
-| **Favoritos**                 | Chips para acesso rápido às cidades salvas         |
-| **Gradientes dinâmicos**      | Aparência do card baseada nas condições climáticas |
-| **Navegação Android**         | `PopScope` + duplo toque para sair                 |
-| **Splash screen**             | Branding e transição animada para a Home           |
-
-### Qualidade e boas práticas
-
-| Competência                        | Aplicação                                                     |
-| ---------------------------------- | ------------------------------------------------------------- |
-| **Null-safety**                    | Código utilizando null-safety do Dart                         |
-| **Widgets reutilizáveis**          | `WeatherCard`, `ForecastList`, `ErrorViewer` e outros         |
-| **Testabilidade**                  | Serviços com `http.Client` injetável para utilização de mocks |
-| **Release Android**                | Minificação, R8 e regras ProGuard                             |
-| **Gerenciamento de ciclo de vida** | `mounted` checks e `dispose`                                  |
-| **Material Design 3**              | Componentes e temas modernos                                  |
+| **Material Design 3** | Design system, temas e componentes           |
 
 ---
 
-## 📁 Estrutura do projeto
+## 🏗️ Arquitetura
+
+| Competência                        | Aplicação                                                      |
+| ---------------------------------- | -------------------------------------------------------------- |
+| **Arquitetura em camadas**         | `models`, `services`, `providers`, `pages`, `widgets`, `utils` |
+| **State Management**               | Provider + ChangeNotifier                                      |
+| **Separação de responsabilidades** | UI desacoplada da lógica de negócio e das APIs                 |
+| **Helpers**                        | `WeatherCodeHelper` para ícones, textos e gradientes           |
+
+---
+
+## 🌐 Dados e Rede
+
+| Competência                     | Aplicação                                                   |
+| ------------------------------- | ----------------------------------------------------------- |
+| **API REST**                    | Comunicação HTTP + JSON                                     |
+| **Open-Meteo Forecast**         | Clima atual e previsão                                      |
+| **Open-Meteo Geocoding**        | Busca e autocomplete de cidades                             |
+| **Reverse Geocoding**           | Conversão de coordenadas em nome da cidade                  |
+| **Tratamento de erros de rede** | `SocketException`, `TimeoutException` e mensagens amigáveis |
+
+---
+
+## 📱 Dispositivo, Widget e Persistência
+
+| Competência                   | Aplicação                                             |
+| ----------------------------- | ----------------------------------------------------- |
+| **Geolocalização**            | `geolocator` + gerenciamento de permissões            |
+| **Persistência local**        | SharedPreferences para favoritos e unidade            |
+| **Home Screen Widget**        | `home_widget` + `WeatherHomeWidgetProvider` em Kotlin |
+| **Atualização em background** | WorkManager + `WeatherUpdateWorker` em Kotlin         |
+| **Datas e localização**       | `intl` com suporte a `pt_BR`                          |
+
+---
+
+## 🎨 UX / UI
+
+| Competência              | Aplicação                          |
+| ------------------------ | ---------------------------------- |
+| **Animações**            | Fade, Slide e Scale                |
+| **Estados de UI**        | Loading, erro e conteúdo           |
+| **Autocomplete**         | Debounce nas sugestões             |
+| **Favoritos**            | Chips de acesso rápido             |
+| **Gradientes dinâmicos** | Card adaptado à condição climática |
+| **Navegação Android**    | `PopScope` + duplo toque para sair |
+
+---
+
+## 🧪 Qualidade e Boas Práticas
+
+| Competência               | Aplicação                                        |
+| ------------------------- | ------------------------------------------------ |
+| **Null Safety**           | Dart null-safe                                   |
+| **Widgets reutilizáveis** | `WeatherCard`, `ForecastList`, `ErrorViewer`     |
+| **Testabilidade**         | `http.Client` injetável para utilização de mocks |
+| **Release Android**       | Minificação, R8 e ProGuard                       |
+| **Ciclo de vida**         | Checks de `mounted` e `dispose`                  |
+
+---
+
+# 📁 Estrutura do Projeto
 
 ```text
 lib/
 ├── main.dart
-│
 ├── models/
 │   └── weather_model.dart
-│       ├── WeatherModel
-│       ├── DailyForecast
+│       └── WeatherModel
+│       └── DailyForecast
 │       └── CitySuggestion
 │
 ├── services/
@@ -163,11 +180,11 @@ lib/
 │   │   └── API, geocoding e localização
 │   │
 │   └── widget_service.dart
-│       └── Atualização e pin do widget
+│       └── Dados do widget e pin
 │
 ├── providers/
 │   └── weather_provider.dart
-│       └── Estado global utilizando Provider
+│       └── Estado global com Provider
 │
 ├── pages/
 │   ├── splash_page.dart
@@ -180,45 +197,52 @@ lib/
 │
 └── utils/
     └── weather_code_helper.dart
-        └── Ícones, textos e gradientes do clima
+        └── Ícones, textos e gradientes
 
-android/
-└── app/
-    └── src/
-        └── main/
-            └── kotlin/
-                └── .../
-                    ├── MainActivity.kt
-                    └── WeatherHomeWidgetProvider.kt
-                        └── Provider nativo do widget
+android/app/src/main/
+├── AndroidManifest.xml
+│
+├── kotlin/.../weather_app/
+│   ├── MainActivity.kt
+│   ├── WeatherHomeWidgetProvider.kt
+│   │   └── Provider do widget
+│   │
+│   └── WeatherUpdateWorker.kt
+│       └── Atualização horária em background
+│
+└── res/
+    ├── layout/
+    │   └── weather_home_widget.xml
+    │
+    └── xml/
+        └── weather_home_widget_info.xml
 ```
 
 ---
 
-## 🚀 Como rodar
+# 🚀 Como Rodar
 
-### Pré-requisitos
+## 📋 Pré-requisitos
 
-* Flutter SDK **3.13 ou superior**
-* Dart SDK compatível com a versão do Flutter
-* Android Studio e/ou Xcode, conforme a plataforma
+* Flutter SDK **3.13+**
+* Dart compatível com a versão instalada do Flutter
+* Android Studio e/ou Xcode
 * Emulador ou dispositivo físico
 * Git
 
-### Clonar o projeto
+---
+
+## 📥 Clonar o projeto
 
 ```bash
 git clone https://github.com/othongustavo99/weather-app.git
 cd weather-app
-```
-
-### Instalar dependências
-
-```bash
 flutter pub get
 ```
 
-### Executar
+---
+
+## ▶️ Executar
 
 ```bash
 flutter run
@@ -226,11 +250,9 @@ flutter run
 
 ---
 
-## 📦 Build Release
+# 📦 Build Release — Android
 
-### Android — APK
-
-Para gerar uma versão release:
+Para gerar uma versão de produção:
 
 ```bash
 flutter build apk --release
@@ -248,15 +270,13 @@ Também é possível executar diretamente em modo release:
 flutter run --release
 ```
 
-> A configuração de release Android inclui R8/ProGuard e regras específicas para manter componentes necessários ao funcionamento do aplicativo e do widget.
+> A configuração de release utiliza R8/ProGuard e regras específicas para manter o funcionamento do WorkManager e do widget Android.
 
 ---
 
-## 🔐 Permissões
+# 🔐 Permissões
 
-### Android
-
-As principais permissões utilizadas pelo aplicativo estão relacionadas à internet e localização.
+## Android
 
 Arquivo:
 
@@ -264,44 +284,54 @@ Arquivo:
 android/app/src/main/AndroidManifest.xml
 ```
 
-Exemplo:
+Permissões utilizadas:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 ```
 
-### iOS
+### Finalidade
 
-Para utilização da localização, é necessário configurar a descrição correspondente no:
+| Permissão                | Finalidade                                                  |
+| ------------------------ | ----------------------------------------------------------- |
+| `INTERNET`               | Comunicação com as APIs meteorológicas                      |
+| `ACCESS_FINE_LOCATION`   | Obtenção da localização precisa                             |
+| `ACCESS_COARSE_LOCATION` | Obtenção de localização aproximada                          |
+| `RECEIVE_BOOT_COMPLETED` | Permite que o sistema reagende tarefas após reinicialização |
+
+---
+
+## 🍎 iOS
+
+Arquivo:
 
 ```text
 ios/Runner/Info.plist
 ```
 
-Exemplo:
+Configuração de localização:
 
 ```xml
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>Precisamos da sua localização para mostrar o clima local.</string>
 ```
 
-> Configurações específicas para publicação nas lojas serão tratadas separadamente.
+---
+
+# 🔌 APIs Utilizadas
+
+| API                                                                  | Função                                   | Autenticação |
+| -------------------------------------------------------------------- | ---------------------------------------- | ------------ |
+| [Open-Meteo Forecast](https://open-meteo.com/)                       | Clima atual e previsão de 5 dias         | Sem API key  |
+| [Open-Meteo Geocoding](https://open-meteo.com/en/docs/geocoding-api) | Busca e autocomplete de cidades          | Sem API key  |
+| **BigDataCloud**                                                     | Reverse geocoding — coordenadas → cidade | Sem API key  |
 
 ---
 
-## 🔌 APIs utilizadas
-
-| API                                                                  | Função                                                        | Autenticação       |
-| -------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------ |
-| [Open-Meteo Forecast](https://open-meteo.com/)                       | Clima atual e previsão de 5 dias                              | Não requer API key |
-| [Open-Meteo Geocoding](https://open-meteo.com/en/docs/geocoding-api) | Busca e autocomplete de cidades                               | Não requer API key |
-| BigDataCloud                                                         | Reverse geocoding e identificação da cidade pelas coordenadas | Não requer API key |
-
----
-
-## 📦 Principais dependências
+# 📦 Principais Dependências
 
 ```yaml
 dependencies:
@@ -317,86 +347,151 @@ dependencies:
   cupertino_icons: ^1.0.8
 ```
 
-> As versões acima representam as principais dependências utilizadas no projeto. A versão efetivamente instalada pode ser determinada pelo `pubspec.lock`.
+> As versões efetivamente utilizadas pelo projeto podem ser consultadas no `pubspec.lock`.
+
+No Android nativo, o projeto também utiliza:
+
+```text
+androidx.work:work-runtime-ktx
+```
+
+para o agendamento das atualizações do widget.
 
 ---
 
-## 🧪 Testes
+# 🧩 Widget e Atualização em Background
 
-Para executar a suíte de testes:
+O widget da tela inicial funciona integrado ao Flutter e ao código nativo Android.
+
+### Fluxo
+
+```text
+Flutter
+   │
+   ├── Dados meteorológicos
+   ├── Cidade
+   ├── Temperatura
+   ├── Descrição
+   ├── Latitude
+   ├── Longitude
+   └── Unidade
+        │
+        ▼
+   home_widget
+        │
+        ▼
+WeatherHomeWidgetProvider
+        │
+        ▼
+   Widget Android
+```
+
+### Atualização automática
+
+O widget é atualizado automaticamente através do **WorkManager**.
+
+A cada execução, o `WeatherUpdateWorker`:
+
+1. Lê as coordenadas armazenadas.
+2. Recupera a unidade configurada.
+3. Consulta a API Open-Meteo.
+4. Atualiza os dados meteorológicos.
+5. Salva os novos dados no armazenamento local.
+6. Atualiza todos os widgets ativos.
+
+As coordenadas somente são armazenadas quando existem valores válidos, evitando falhas durante a execução em background.
+
+> ⚠️ Em alguns dispositivos Android, mecanismos como economia de bateria e Doze podem atrasar a execução. Portanto, o intervalo de 1 hora representa o agendamento mínimo desejado, não uma garantia de execução exatamente a cada 60 minutos.
+
+---
+
+# 🧪 Testes
+
+Para executar os testes:
 
 ```bash
 flutter test
 ```
 
-O projeto possui testes voltados para diferentes camadas da aplicação, incluindo:
+A estrutura de testes contempla:
 
-* **Models**
-* **Services**
-* Requisições HTTP utilizando `MockClient`
-* **Widgets**
+* Models
+* Services
 * Provider
-* Persistência com SharedPreferences mock
+* Widgets
+* Persistência
+* Mock de requisições HTTP através de `http.Client`
 
 ---
 
-## 🎯 Objetivos de aprendizado
+# 🎯 Objetivos de Aprendizado
 
-O HzClima foi desenvolvido como um projeto de estudo e portfólio, com foco na aplicação prática de conceitos de desenvolvimento mobile com Flutter.
+O HzClima foi desenvolvido como projeto de estudo e portfólio, reunindo diferentes conceitos de desenvolvimento mobile.
 
-O projeto demonstra:
+### Principais conhecimentos aplicados
 
-1. Desenvolvimento de um aplicativo Flutter completo.
-2. Integração com APIs REST públicas.
-3. Consumo e tratamento de dados JSON.
-4. Gerenciamento de estado com **Provider**.
-5. Persistência local com **SharedPreferences**.
-6. Geolocalização e gerenciamento de permissões.
-7. Integração entre Flutter e código nativo Android.
-8. Desenvolvimento de **Home Screen Widget**.
-9. Interface utilizando **Material Design 3**.
-10. Suporte a tema claro, escuro e sistema.
-11. Desenvolvimento de animações e transições.
-12. Tratamento de erros de rede.
-13. Gerenciamento de estados de loading, erro e conteúdo.
-14. Testes unitários e de widgets.
-15. Configuração de **build release Android**.
-16. Utilização de R8/ProGuard.
-17. Organização de código utilizando separação de responsabilidades.
-
----
-
-## 💼 Projeto de portfólio
-
-O HzClima foi desenvolvido com o objetivo de demonstrar conhecimentos práticos em **desenvolvimento Flutter/mobile**, indo além de uma aplicação simples de consumo de API.
-
-O projeto reúne:
-
-* Consumo de APIs reais
-* Arquitetura organizada
-* Gerenciamento de estado
-* Persistência local
-* Geolocalização
-* Widgets nativos
-* Material Design 3
-* Dark mode
-* Animações
-* Tratamento de erros
-* Testes
-* Build de produção
-
-A proposta é demonstrar o processo completo de desenvolvimento de uma aplicação mobile funcional, desde a interface até a integração com recursos nativos do dispositivo.
+1. Desenvolvimento de um aplicativo Flutter completo
+2. Integração com APIs REST públicas
+3. Consumo e tratamento de JSON
+4. Tratamento de erros de rede
+5. State Management com **Provider**
+6. Persistência local com **SharedPreferences**
+7. Geolocalização e gerenciamento de permissões
+8. Comunicação entre Flutter e Android nativo
+9. Desenvolvimento de **Home Screen Widget**
+10. Atualização em background utilizando **WorkManager**
+11. Material Design 3
+12. Temas claro, escuro e sistema
+13. Animações e transições
+14. Gerenciamento dos estados de loading, erro e conteúdo
+15. Testes unitários e testes de widgets
+16. Build de produção para Android
+17. R8 e ProGuard
+18. Organização arquitetural em camadas
+19. Separação de responsabilidades
+20. Boas práticas de ciclo de vida no Flutter
 
 ---
 
-## 📄 Licença
+# 💼 Portfólio
 
-Este projeto está licenciado sob a **MIT License**.
+O **HzClima** foi desenvolvido para ir além de um simples projeto de consumo de API.
+
+O aplicativo reúne, em um único projeto:
+
+* 🌐 Consumo de APIs REST reais
+* 🏗️ Arquitetura organizada em camadas
+* 🔄 Gerenciamento de estado com Provider
+* 💾 Persistência local
+* 📍 Geolocalização
+* 📱 Integração com funcionalidades nativas do Android
+* 🧩 Home Screen Widget
+* ⚙️ Execução em background com WorkManager
+* 🎨 Material Design 3
+* 🌓 Dark Mode
+* ✨ Animações
+* ⚠️ Tratamento de erros
+* 🧪 Testes
+* 📦 Build de produção
+* 🔐 Configuração de permissões
+* 🛡️ R8/ProGuard
+
+O projeto representa uma aplicação prática de conceitos estudados durante o desenvolvimento mobile com **Flutter e Dart**, além da integração com recursos nativos do Android utilizando **Kotlin**.
+
+---
+
+# 📄 Licença
+
+Este projeto está sob a licença **MIT**.
 
 Você pode utilizar, estudar, modificar e adaptar o código de acordo com os termos da licença.
 
 ---
 
 <p align="center">
-  Feito com Flutter 💙
+  Desenvolvido com Flutter 💙
+</p>
+
+<p align="center">
+  <strong>HzClima</strong> — clima de forma simples, rápida e inteligente.
 </p>
