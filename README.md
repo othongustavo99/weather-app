@@ -55,6 +55,13 @@
 * 🔎 **Busca por cidade** com autocomplete e debounce
 * 📍 **Localização atual** utilizando GPS e reverse geocoding
 * 📅 **Previsão de 5 dias**
+* 🕐 **Previsão das próximas 24 horas**
+
+  * Horário de cada previsão
+  * Temperatura
+  * Condição climática
+  * Probabilidade de chuva
+  * Destaque visual para o horário atual
 * 💧 **Métricas meteorológicas**
 
   * Umidade
@@ -69,6 +76,9 @@
   * Atualização automática a cada hora
   * WorkManager + worker nativo em Kotlin
   * Coordenadas e unidade persistidas para execução em background
+  * Exibição de temperatura, sensação térmica, condição climática, cidade e horário da última atualização
+  * Ícone meteorológico adaptado às condições atuais
+  * 🌙 **Representação da fase da Lua durante a noite**, quando aplicável
 * 🌓 **Tema claro, escuro e baseado no sistema**
 * 🎨 **Material Design 3**
 * 🚀 **Splash screen animada** com branding
@@ -120,47 +130,53 @@
 | Competência                     | Aplicação                                                   |
 | ------------------------------- | ----------------------------------------------------------- |
 | **API REST**                    | Comunicação HTTP + JSON                                     |
-| **Open-Meteo Forecast**         | Clima atual e previsão                                      |
+| **Open-Meteo Forecast**         | Clima atual e previsões diária e horária                    |
 | **Open-Meteo Geocoding**        | Busca e autocomplete de cidades                             |
 | **Reverse Geocoding**           | Conversão de coordenadas em nome da cidade                  |
+| **Previsão horária**            | Consulta e processamento das próximas 24 horas              |
 | **Tratamento de erros de rede** | `SocketException`, `TimeoutException` e mensagens amigáveis |
 
 ---
 
 ## 📱 Dispositivo, Widget e Persistência
 
-| Competência                   | Aplicação                                             |
-| ----------------------------- | ----------------------------------------------------- |
-| **Geolocalização**            | `geolocator` + gerenciamento de permissões            |
-| **Persistência local**        | SharedPreferences para favoritos e unidade            |
-| **Home Screen Widget**        | `home_widget` + `WeatherHomeWidgetProvider` em Kotlin |
-| **Atualização em background** | WorkManager + `WeatherUpdateWorker` em Kotlin         |
-| **Datas e localização**       | `intl` com suporte a `pt_BR`                          |
+| Competência                    | Aplicação                                                    |
+| ------------------------------ | ------------------------------------------------------------ |
+| **Geolocalização**             | `geolocator` + gerenciamento de permissões                   |
+| **Persistência local**         | SharedPreferences para favoritos e unidade                   |
+| **Home Screen Widget**         | `home_widget` + `WeatherHomeWidgetProvider` em Kotlin        |
+| **Atualização em background**  | WorkManager + `WeatherUpdateWorker` em Kotlin                |
+| **Integração Flutter/Android** | Comunicação entre Flutter e código nativo Kotlin             |
+| **Datas e localização**        | `intl` com suporte a `pt_BR`                                 |
+| **Informações astronômicas**   | Cálculo da fase da Lua utilizado pelo widget durante a noite |
 
 ---
 
 ## 🎨 UX / UI
 
-| Competência              | Aplicação                          |
-| ------------------------ | ---------------------------------- |
-| **Animações**            | Fade, Slide e Scale                |
-| **Estados de UI**        | Loading, erro e conteúdo           |
-| **Autocomplete**         | Debounce nas sugestões             |
-| **Favoritos**            | Chips de acesso rápido             |
-| **Gradientes dinâmicos** | Card adaptado à condição climática |
-| **Navegação Android**    | `PopScope` + duplo toque para sair |
+| Competência              | Aplicação                              |
+| ------------------------ | -------------------------------------- |
+| **Animações**            | Fade, Slide e Scale                    |
+| **Estados de UI**        | Loading, erro e conteúdo               |
+| **Autocomplete**         | Debounce nas sugestões                 |
+| **Favoritos**            | Chips de acesso rápido                 |
+| **Previsão horária**     | Lista horizontal das próximas 24 horas |
+| **Gradientes dinâmicos** | Card adaptado à condição climática     |
+| **Navegação Android**    | `PopScope` + duplo toque para sair     |
+| **Widget dinâmico**      | Informações meteorológicas atualizadas |
 
 ---
 
 ## 🧪 Qualidade e Boas Práticas
 
-| Competência               | Aplicação                                        |
-| ------------------------- | ------------------------------------------------ |
-| **Null Safety**           | Dart null-safe                                   |
-| **Widgets reutilizáveis** | `WeatherCard`, `ForecastList`, `ErrorViewer`     |
-| **Testabilidade**         | `http.Client` injetável para utilização de mocks |
-| **Release Android**       | Minificação, R8 e ProGuard                       |
-| **Ciclo de vida**         | Checks de `mounted` e `dispose`                  |
+| Competência                        | Aplicação                                                          |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| **Null Safety**                    | Dart null-safe                                                     |
+| **Widgets reutilizáveis**          | `WeatherCard`, `ForecastList`, `HourlyForecastList`, `ErrorViewer` |
+| **Testabilidade**                  | `http.Client` injetável para utilização de mocks                   |
+| **Release Android**                | Minificação, R8 e ProGuard                                         |
+| **Ciclo de vida**                  | Checks de `mounted` e `dispose`                                    |
+| **Separação de responsabilidades** | Serviços, providers e componentes independentes                    |
 
 ---
 
@@ -171,8 +187,9 @@ lib/
 ├── main.dart
 ├── models/
 │   └── weather_model.dart
-│       └── WeatherModel
-│       └── DailyForecast
+│       ├── WeatherModel
+│       ├── DailyForecast
+│       ├── HourlyForecast
 │       └── CitySuggestion
 │
 ├── services/
@@ -193,6 +210,7 @@ lib/
 ├── widgets/
 │   ├── weather_card.dart
 │   ├── forecast_list.dart
+│   ├── hourly_forecast_list.dart
 │   └── error_viewer.dart
 │
 └── utils/
@@ -325,7 +343,7 @@ Configuração de localização:
 
 | API                                                                  | Função                                   | Autenticação |
 | -------------------------------------------------------------------- | ---------------------------------------- | ------------ |
-| [Open-Meteo Forecast](https://open-meteo.com/)                       | Clima atual e previsão de 5 dias         | Sem API key  |
+| [Open-Meteo Forecast](https://open-meteo.com/)                       | Clima atual e previsões diária e horária | Sem API key  |
 | [Open-Meteo Geocoding](https://open-meteo.com/en/docs/geocoding-api) | Busca e autocomplete de cidades          | Sem API key  |
 | **BigDataCloud**                                                     | Reverse geocoding — coordenadas → cidade | Sem API key  |
 
@@ -371,6 +389,7 @@ Flutter
    ├── Dados meteorológicos
    ├── Cidade
    ├── Temperatura
+   ├── Sensação térmica
    ├── Descrição
    ├── Latitude
    ├── Longitude
@@ -385,6 +404,20 @@ WeatherHomeWidgetProvider
         ▼
    Widget Android
 ```
+
+### Informações exibidas
+
+O widget apresenta de forma compacta:
+
+* Cidade atual
+* Temperatura
+* Sensação térmica
+* Condição climática
+* Ícone meteorológico
+* Horário da última atualização
+* Identidade visual do HzClima
+
+Durante o período noturno, determinadas condições climáticas podem utilizar uma representação da **fase atual da Lua**, calculada pelo código nativo Android.
 
 ### Atualização automática
 
@@ -405,6 +438,26 @@ As coordenadas somente são armazenadas quando existem valores válidos, evitand
 
 ---
 
+# 🕐 Previsão das Próximas 24 Horas
+
+O HzClima também apresenta uma previsão horária detalhada para as próximas 24 horas.
+
+Os dados são obtidos através da API **Open-Meteo Forecast** e processados pelo modelo `HourlyForecast`.
+
+Para cada horário, o aplicativo pode apresentar:
+
+* 🕐 Horário da previsão
+* 🌡️ Temperatura
+* 🌦️ Condição climática
+* 🌧️ Probabilidade de precipitação
+* 📍 Destaque para o momento atual
+
+A previsão é apresentada em uma lista horizontal, permitindo consultar rapidamente a evolução das condições climáticas ao longo do dia.
+
+Essa funcionalidade complementa a previsão diária de 5 dias, oferecendo uma visão mais precisa das condições meteorológicas no curto prazo.
+
+---
+
 # 🧪 Testes
 
 Para executar os testes:
@@ -413,14 +466,15 @@ Para executar os testes:
 flutter test
 ```
 
-A estrutura de testes contempla:
+A estrutura atual de testes contempla:
 
-* Models
-* Services
-* Provider
-* Widgets
-* Persistência
-* Mock de requisições HTTP através de `http.Client`
+* **Models**
+* **Services**
+* **Widgets**
+* **Testes de requisições HTTP**
+* **Mock de `http.Client`** para isolamento das chamadas de rede
+
+O projeto utiliza injeção de dependência no cliente HTTP para facilitar a criação de mocks e tornar os serviços mais testáveis.
 
 ---
 
@@ -433,23 +487,27 @@ O HzClima foi desenvolvido como projeto de estudo e portfólio, reunindo diferen
 1. Desenvolvimento de um aplicativo Flutter completo
 2. Integração com APIs REST públicas
 3. Consumo e tratamento de JSON
-4. Tratamento de erros de rede
-5. State Management com **Provider**
-6. Persistência local com **SharedPreferences**
-7. Geolocalização e gerenciamento de permissões
-8. Comunicação entre Flutter e Android nativo
-9. Desenvolvimento de **Home Screen Widget**
-10. Atualização em background utilizando **WorkManager**
-11. Material Design 3
-12. Temas claro, escuro e sistema
-13. Animações e transições
-14. Gerenciamento dos estados de loading, erro e conteúdo
-15. Testes unitários e testes de widgets
-16. Build de produção para Android
-17. R8 e ProGuard
-18. Organização arquitetural em camadas
-19. Separação de responsabilidades
-20. Boas práticas de ciclo de vida no Flutter
+4. Previsão meteorológica diária e horária
+5. Tratamento de erros de rede
+6. State Management com **Provider**
+7. Persistência local com **SharedPreferences**
+8. Geolocalização e gerenciamento de permissões
+9. Comunicação entre Flutter e Android nativo
+10. Desenvolvimento de **Home Screen Widget**
+11. Atualização em background utilizando **WorkManager**
+12. Material Design 3
+13. Temas claro, escuro e sistema
+14. Animações e transições
+15. Gerenciamento dos estados de loading, erro e conteúdo
+16. Testes unitários e testes de widgets
+17. Build de produção para Android
+18. R8 e ProGuard
+19. Organização arquitetural em camadas
+20. Separação de responsabilidades
+21. Integração com código nativo utilizando Kotlin
+22. Processamento de dados meteorológicos horários
+23. Implementação de comportamento dinâmico para o widget
+24. Boas práticas de ciclo de vida no Flutter
 
 ---
 
@@ -464,11 +522,13 @@ O aplicativo reúne, em um único projeto:
 * 🔄 Gerenciamento de estado com Provider
 * 💾 Persistência local
 * 📍 Geolocalização
+* 🕐 Previsão meteorológica horária
 * 📱 Integração com funcionalidades nativas do Android
 * 🧩 Home Screen Widget
 * ⚙️ Execução em background com WorkManager
 * 🎨 Material Design 3
 * 🌓 Dark Mode
+* 🌙 Representação da fase da Lua no widget
 * ✨ Animações
 * ⚠️ Tratamento de erros
 * 🧪 Testes
