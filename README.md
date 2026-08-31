@@ -36,14 +36,14 @@
 <p align="center">
   <img src="assets/screenshots/screenshot1.jpeg" alt="Screenshot 1" width="140" />
   <img src="assets/screenshots/screenshot2.jpg" alt="Screenshot 2" width="140" />
-  <img src="assets/screenshots/screenshot3.jpg" alt="Screenshot 3" width="140" />
+  <img src="assets/screenshots/screenshot3.png" alt="Screenshot 3" width="140" />
   <img src="assets/screenshots/screenshot4.jpg" alt="Screenshot 4" width="140" />
 </p>
 
 <p align="center">
   <img src="assets/screenshots/screenshot5.jpg" alt="Screenshot 5" width="140" />
-  <img src="assets/screenshots/screenshot6.jpg" alt="Screenshot 6" width="140" />
-  <img src="assets/screenshots/screenshot7.jpg" alt="Screenshot 7" width="140" />
+  <img src="assets/screenshots/screenshot6.png" alt="Screenshot 6" width="140" />
+  <img src="assets/screenshots/screenshot7.png" alt="Screenshot 7" width="140" />
   <img src="assets/screenshots/screenshot8.jpg" alt="Screenshot 8" width="140" />
 </p>
 
