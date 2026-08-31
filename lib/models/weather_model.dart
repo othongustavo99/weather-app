@@ -8,6 +8,7 @@ class WeatherModel {
   final double? feelsLike;
   final double? precipitation;
   final List<DailyForecast> dailyForecast;
+  final List<HourlyForecast> hourlyForecast;
   final String? locationName;
   final DateTime fetchedAt;
   final double? latitude;
@@ -21,6 +22,7 @@ class WeatherModel {
     this.feelsLike,
     this.precipitation,
     this.dailyForecast = const [],
+    this.hourlyForecast = const [],
     this.locationName,
     required this.fetchedAt,
     this.latitude,
@@ -33,6 +35,7 @@ class WeatherModel {
   }) {
     final current = json['current'] as Map<String, dynamic>;
 
+    // ----- Daily -----
     List<DailyForecast> daily = [];
     if (json['daily'] != null) {
       final dailyData = json['daily'] as Map<String, dynamic>;
@@ -53,37 +56,61 @@ class WeatherModel {
       }
     }
 
+    // ----- Hourly -----
+    List<HourlyForecast> hourly = [];
+    if (json['hourly'] != null) {
+      final hourlyData = json['hourly'] as Map<String, dynamic>;
+      final times = hourlyData['time'] as List;
+      final temps = hourlyData['temperature_2m'] as List;
+      final codes = hourlyData['weather_code'] as List;
+      final precipProb = hourlyData['precipitation_probability'] as List?;
+
+      final now = DateTime.now();
+
+      for (int i = 0; i < times.length; i++) {
+        final time = DateTime.parse(times[i] as String);
+
+        // Pega só as próximas 24 horas a partir da hora atual
+        if (time.isBefore(now.subtract(const Duration(hours: 1)))) continue;
+        if (hourly.length >= 24) break;
+
+        hourly.add(
+          HourlyForecast(
+            time: time,
+            temperature: (temps[i] as num).toDouble(),
+            weatherCode: codes[i] as int,
+            precipitationProbability: precipProb != null
+                ? (precipProb[i] as num).toInt()
+                : null,
+          ),
+        );
+      }
+    }
+
     return WeatherModel(
-  temperature: (current['temperature_2m'] as num).toDouble(),
-  windSpeed: (current['wind_speed_10m'] as num).toDouble(),
-  weatherCode: current['weather_code'] as int,
-
-  humidity: current['relative_humidity_2m'] != null
-      ? (current['relative_humidity_2m'] as num).toDouble()
-      : null,
-
-  feelsLike: current['apparent_temperature'] != null
-      ? (current['apparent_temperature'] as num).toDouble()
-      : null,
-
-  precipitation: current['precipitation'] != null
-      ? (current['precipitation'] as num).toDouble()
-      : null,
-
-  dailyForecast: daily,
-
-  locationName: locationName,
-
-  fetchedAt: DateTime.now(),
-
-  latitude: json['latitude'] != null
-      ? (json['latitude'] as num).toDouble()
-      : null,
-
-  longitude: json['longitude'] != null
-      ? (json['longitude'] as num).toDouble()
-      : null,
-);
+      temperature: (current['temperature_2m'] as num).toDouble(),
+      windSpeed: (current['wind_speed_10m'] as num).toDouble(),
+      weatherCode: current['weather_code'] as int,
+      humidity: current['relative_humidity_2m'] != null
+          ? (current['relative_humidity_2m'] as num).toDouble()
+          : null,
+      feelsLike: current['apparent_temperature'] != null
+          ? (current['apparent_temperature'] as num).toDouble()
+          : null,
+      precipitation: current['precipitation'] != null
+          ? (current['precipitation'] as num).toDouble()
+          : null,
+      dailyForecast: daily,
+      hourlyForecast: hourly,
+      locationName: locationName,
+      fetchedAt: DateTime.now(),
+      latitude: json['latitude'] != null
+          ? (json['latitude'] as num).toDouble()
+          : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude'] as num).toDouble()
+          : null,
+    );
   }
 
   String get description => WeatherCodeHelper.description(weatherCode);
@@ -100,6 +127,23 @@ class DailyForecast {
     required this.maxTemp,
     required this.minTemp,
     required this.weatherCode,
+  });
+
+  String get description =>
+      WeatherCodeHelper.description(weatherCode, short: true);
+}
+
+class HourlyForecast {
+  final DateTime time;
+  final double temperature;
+  final int weatherCode;
+  final int? precipitationProbability;
+
+  const HourlyForecast({
+    required this.time,
+    required this.temperature,
+    required this.weatherCode,
+    this.precipitationProbability,
   });
 
   String get description =>

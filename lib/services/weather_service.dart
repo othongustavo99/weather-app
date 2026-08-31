@@ -16,7 +16,7 @@ class WeatherService {
   static const String _geocodingUrl =
       'https://geocoding-api.open-meteo.com/v1/search';
 
-  Future<WeatherModel> getWeather({
+    Future<WeatherModel> getWeather({
     required double latitude,
     required double longitude,
     String? locationName,
@@ -27,8 +27,10 @@ class WeatherService {
       '$_forecastUrl?latitude=$latitude&longitude=$longitude'
       '&current=temperature_2m,relative_humidity_2m,apparent_temperature,'
       'precipitation,wind_speed_10m,weather_code'
+      '&hourly=temperature_2m,weather_code,precipitation_probability'
       '&daily=weather_code,temperature_2m_max,temperature_2m_min'
       '&forecast_days=5'
+      '&forecast_hours=24'
       '&temperature_unit=$tempUnit'
       '&timezone=auto',
     );

@@ -161,27 +161,54 @@ class WeatherHomeWidgetProvider : HomeWidgetProvider() {
             )
     }
 
-    private fun getWeatherIcon(
-        code: Int
-    ): String {
+              private fun getWeatherIcon(code: Int): String {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        val isNight = hour >= 18 || hour < 6
 
         return when (code) {
-
-            0 -> "☀"
-
+            0 -> if (isNight) getMoonPhaseEmoji() else "☀"
             1, 2, 3 -> "☁"
-
             45, 48 -> "🌫"
-
             51, 53, 55,
             61, 63, 65,
             80, 81, 82 -> "🌧"
-
             71, 73, 75 -> "❄"
-
             95, 96, 99 -> "⛈"
-
             else -> "☁"
+        }
+    }
+
+    private fun getMoonPhaseEmoji(): String {
+        val calendar = java.util.Calendar.getInstance()
+        val year = calendar.get(java.util.Calendar.YEAR)
+        val month = calendar.get(java.util.Calendar.MONTH) + 1
+        val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+
+        var y = year
+        var m = month
+        if (m <= 2) {
+            y -= 1
+            m += 12
+        }
+        val a = y / 100
+        val b = 2 - a + a / 4
+        val jd = (365.25 * (y + 4716)).toInt() +
+                (30.6001 * (m + 1)).toInt() +
+                day + b - 1524.5
+
+        val daysSinceNew = jd - 2451549.5
+        val lunations = daysSinceNew / 29.53058867
+        val phase = lunations - lunations.toInt()
+
+        return when {
+            phase < 0.03 || phase > 0.97 -> "🌑"
+            phase < 0.22                 -> "🌒"
+            phase < 0.28                 -> "🌓"
+            phase < 0.47                 -> "🌔"
+            phase < 0.53                 -> "🌕"
+            phase < 0.72                 -> "🌖"
+            phase < 0.78                 -> "🌗"
+            else                         -> "🌘"
         }
     }
 }

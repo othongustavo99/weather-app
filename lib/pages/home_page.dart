@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import '../widgets/hourly_forecast_list.dart';
 import '../services/widget_service.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/error_viewer.dart';
@@ -391,7 +391,7 @@ class _HomePageState extends State<HomePage>
       );
     }
 
-    if (provider.weather != null) {
+        if (provider.weather != null) {
       return RefreshIndicator(
         key: const ValueKey('weather'),
         onRefresh: provider.refresh,
@@ -404,7 +404,13 @@ class _HomePageState extends State<HomePage>
                 cityName: provider.cityName,
                 unitSymbol: provider.unitSymbol,
               ),
+              const SizedBox(height: 24),
+              // ===== NOVA SEÇÃO HORÁRIA =====
+              HourlyForecastList(
+                forecasts: provider.weather!.hourlyForecast,
+              ),
               const SizedBox(height: 28),
+              // ==============================
               ForecastList(forecasts: provider.weather!.dailyForecast),
               const SizedBox(height: 20),
             ],

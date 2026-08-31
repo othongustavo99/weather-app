@@ -37,10 +37,15 @@ class WeatherCodeHelper {
     }
   }
 
-  static IconData icon(int code) {
+    static IconData icon(int code, {DateTime? time}) {
+    final dateTime = time ?? DateTime.now();
+    final hour = dateTime.hour;
+    final isNight = hour >= 18 || hour < 6;
+
     switch (code) {
       case 0:
-        return Icons.wb_sunny_rounded;
+        // Céu limpo: sol de dia, lua de noite
+        return isNight ? Icons.nightlight_round : Icons.wb_sunny_rounded;
       case 1:
       case 2:
       case 3:

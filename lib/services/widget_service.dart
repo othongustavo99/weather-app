@@ -107,8 +107,12 @@ class WidgetService {
     double? longitude,
     String unitSymbol = '°C',
   }) async {
-    await HomeWidget.saveWidgetData<String>('city_name', cityName);
-
+    
+    final shortCityName = cityName.split(',').first.trim();
+    await HomeWidget.saveWidgetData<String>(
+      'city_name',
+      shortCityName.isNotEmpty ? shortCityName : cityName,
+    );
     await HomeWidget.saveWidgetData<String>(
       'temperature',
       temperature != null ? '${temperature.round()}$unitSymbol' : '--',
